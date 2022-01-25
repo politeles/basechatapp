@@ -11,24 +11,37 @@ class ChatScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('chat screen'),
       ),
-      body: ListView.builder(
-        itemBuilder: (context, index) => Container(
-          padding: const EdgeInsets.all(8),
-          child: const Text('This works'),
-        ),
-        itemCount: 10,
+      body: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance
+            .collection('chats/QmHcxlMM4GMLiKfSi9OQ/messages')
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+          final documents = snapshot.data!.docs;
+          return ListView.builder(
+            itemBuilder: (context, index) => Container(
+              padding: const EdgeInsets.all(8),
+              child: Text(documents[index]['text']),
+            ),
+            itemCount: documents.length,
+          );
+        },
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           FirebaseFirestore.instance
               .collection('chats/QmHcxlMM4GMLiKfSi9OQ/messages')
-              .snapshots()
-              .listen((event) {
-            event.docs.forEach((document) {
-              print(document['text']);
-            });
-            //print(event.docs[0]['text']);
-          });
+              .add({'text': 'This was added by clicking the button'});
+          //     .snapshots()
+          //     .listen((event) {
+          //   event.docs.forEach((document) {
+          //     print(document['text']);
+          //   });
+          //print(event.docs[0]['text']);
         },
         child: const Icon(Icons.add),
       ),
