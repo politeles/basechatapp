@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'package:flutter/services.dart';
 
 import '../widgets/auth/auth_form.dart';
@@ -13,6 +15,7 @@ class AuthScreen extends StatefulWidget {
 
 class _AuthScreenState extends State<AuthScreen> {
   final _auth = FirebaseAuth.instance;
+  var _isLoading = false;
 
   void _submitForm(
     String email,
@@ -23,6 +26,9 @@ class _AuthScreenState extends State<AuthScreen> {
   ) async {
     UserCredential authResult;
     try {
+      setState(() {
+        _isLoading = true;
+      });
       if (isLogin) {
         authResult = await _auth.signInWithEmailAndPassword(
           email: email,
@@ -34,7 +40,22 @@ class _AuthScreenState extends State<AuthScreen> {
           password: password,
         );
       }
+
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(authResult.user!.uid)
+          .set({
+        'username': username,
+        'email': email,
+      });
+      // setState(() {
+      //   _isLoading = false;
+      // });
     } on PlatformException catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+
       // TODO
       var message = 'An error occurred';
       if (e.message != null) {
@@ -47,6 +68,9 @@ class _AuthScreenState extends State<AuthScreen> {
         ),
       );
     } catch (err) {
+      setState(() {
+        _isLoading = false;
+      });
       Scaffold.of(ctx).showSnackBar(
         SnackBar(
           content: Text(err.toString()),
@@ -61,7 +85,7 @@ class _AuthScreenState extends State<AuthScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).primaryColor,
-      body: AuthForm(submitFn: _submitForm),
+      body: AuthForm(submitFn: _submitForm, isLoading: _isLoading),
     );
   }
 }
