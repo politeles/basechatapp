@@ -1,6 +1,8 @@
 import './screens/auth_screen.dart';
 import './screens/chat_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 
@@ -48,7 +50,15 @@ class MyApp extends StatelessWidget {
             print('You have an error! ${snapshot.error.toString()}');
             return const Text('Something went wrong');
           } else if (snapshot.hasData) {
-            return const AuthScreen();
+            return StreamBuilder(
+              stream: FirebaseAuth.instance.authStateChanges(),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return const ChatScreen();
+                }
+                return const AuthScreen();
+              },
+            );
           } else {
             return const CircularProgressIndicator();
           }
