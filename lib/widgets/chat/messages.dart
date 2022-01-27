@@ -30,7 +30,8 @@ class Messages extends StatelessWidget {
               message: chatDocs.docs[index]['text'],
               isMe: chatDocs.docs[index]['userId'] ==
                   FirebaseAuth.instance.currentUser!.uid,
-                  userId: chatDocs.docs[index]['userId'],
+              userId: chatDocs.docs[index]['userId'],
+              imageUrl: chatDocs.docs[index]['image_url'],
               key: ValueKey(chatDocs.docs[index].id),
             ),
             itemCount: chatDocs.size,
