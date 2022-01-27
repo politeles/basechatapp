@@ -29,6 +29,7 @@ class _ChatScreenState extends State<ChatScreen> {
         print('initial message');
         print('FMC: ${message.data}');
       }
+      fbm.subscribeToTopic('chat');
     });
 
     // TODO: implement initState
