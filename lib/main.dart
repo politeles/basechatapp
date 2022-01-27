@@ -1,3 +1,5 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
+
 import './screens/auth_screen.dart';
 import './screens/chat_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -6,9 +8,15 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 
+Future<void> _firebaseMessageingBackgroundhandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+  print('Handling a background message ${message.messageId}');
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessageingBackgroundhandler);
   runApp(MyApp());
 }
 
